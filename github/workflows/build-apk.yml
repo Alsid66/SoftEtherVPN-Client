@@ -1,0 +1,45 @@
+name: Build Flutter APK
+
+on:
+  push:
+    branches:
+      - main # یا master (بسته به اسم برنچ اصلی شما)
+  workflow_dispatch: # به شما اجازه می‌دهد دستی هم بیلد را از سایت گیت‌هاب اجرا کنید
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ۱. دانلود کدهای پروژه روی سرور گیت‌هاب
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # ۲. نصب جاوای مورد نیاز برای کامپایل اندروید
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # ۳. نصب و راه‌اندازی فلاتر
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.x' # آخرین نسخه پایدار ۳ را دانلود می‌کند
+          channel: 'stable'
+
+      # ۴. دانلود پکیج‌ها و وابستگی‌های پروژه
+      - name: Install dependencies
+        run: flutter pub get
+
+      # ۵. کامپایل و ساخت فایل APK نسخه Release
+      - name: Build APK
+        run: flutter build apk --release
+
+      # ۶. آپلود فایل APK خروجی تا بتوانید دانلودش کنید
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: softether-vpn-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
