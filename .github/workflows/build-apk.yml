@@ -32,8 +32,12 @@ jobs:
       # ۴. دانلود پکیج‌ها و وابستگی‌های پروژه
       - name: Install dependencies
         run: flutter pub get
+
       - name: Clean Project Cache
         run: flutter clean
+
+      - name: Recreate Android Folder
+         run: flutter create --platforms android .
 
       # ۵. کامپایل و ساخت فایل APK نسخه Release
       - name: Build APK
