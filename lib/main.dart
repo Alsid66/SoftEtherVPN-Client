@@ -28,14 +28,6 @@ class _VpnHomeScreenState extends State<VpnHomeScreen> {
   late OpenVPN engine;
   VpnStatus? status;
   VPNStage? stage;
-  bool isConnected = false;
-
-  // اطلاعات سرور SoftEther خود را اینجا وارد کنید
-  final String configOvpnText = """
-# متن کامل فایل کانفیگ .ovpn سرور سافت‌اتر را اینجا کپی کنید
-""";
-  final String username = "username_here";
-  final String password = "password_here";
 
   @override
   void initState() {
@@ -55,28 +47,23 @@ class _VpnHomeScreenState extends State<VpnHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('SoftEther OpenVPN Client')),
+      appBar: AppBar(title: const Text('SoftEther OpenVPN')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text("مرحله فعلی: ${stage?.name ?? 'قطع ارتباط'}"),
-            Text("سرعت دانلود: ${status?.byteIn ?? '0'}"),
+            Text("وضعیت اتصال: ${stage?.name ?? 'قطع ارتباط'}"),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 if (stage == VPNStage.connected) {
                   engine.disconnect();
                 } else {
-                  engine.connect(
-                    configOvpnText,
-                    "SoftEther Server",
-                    username: username,
-                    password: password,
-                  );
+                  // کانفیگ نمونه سرور شما
+                  engine.connect("OVPN_CONFIG_TEXT_HERE", "SoftEther Server");
                 }
               },
-              child: Text(stage == VPNStage.connected ? "قطع اتصال" : "اتصال به وی‌پي‌ان"),
+              child: Text(stage == VPNStage.connected ? "قطع اتصال" : "اتصال به سرور"),
             ),
           ],
         ),
