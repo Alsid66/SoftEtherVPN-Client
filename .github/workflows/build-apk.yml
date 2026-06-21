@@ -35,7 +35,7 @@ jobs:
 
       # ۵. کامپایل و ساخت فایل APK نسخه Release
       - name: Build APK
-        run: flutter build apk --release
+        run: flutter build apk --release --no-validate-project-instant
 
       # ۶. آپلود فایل APK خروجی تا بتوانید دانلودش کنید
       - name: Upload APK Artifact
