@@ -38,8 +38,6 @@ class _VpnHomeScreenState extends State<VpnHomeScreen> {
     );
     
     engine.initialize(
-      groupId: "com.alsid66.softether",
-      providerBundleIdentifier: "com.alsid66.softether.vpn",
       localizedDescription: "SoftEther VPN Connection",
     );
   }
