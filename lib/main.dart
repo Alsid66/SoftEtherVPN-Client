@@ -1,67 +1,85 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'screens/home_screen.dart';
-import 'services/vpn_service.dart';
-import 'services/storage_service.dart';
+import 'package:openvpn_flutter/openvpn_flutter.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const MyApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider<VpnService>(create: (_) => VpnService()),
-        Provider<StorageService>(create: (_) => StorageService()),
-      ],
-      child: MaterialApp(
-        title: 'SoftEther VPN Client',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.light,
-          ),
-          appBarTheme: const AppBarTheme(
-            centerTitle: true,
-            elevation: 2,
-          ),
-          cardTheme: CardTheme(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+    return MaterialApp(
+      home: const VpnHomeScreen(),
+      theme: ThemeData.dark(),
+    );
+  }
+}
+
+class VpnHomeScreen extends StatefulWidget {
+  const VpnHomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<VpnHomeScreen> createState() => _VpnHomeScreenState();
+}
+
+class _VpnHomeScreenState extends State<VpnHomeScreen> {
+  late OpenVPN engine;
+  VpnStatus? status;
+  VPNStage? stage;
+  bool isConnected = false;
+
+  // اطلاعات سرور SoftEther خود را اینجا وارد کنید
+  final String configOvpnText = """
+# متن کامل فایل کانفیگ .ovpn سرور سافت‌اتر را اینجا کپی کنید
+""";
+  final String username = "username_here";
+  final String password = "password_here";
+
+  @override
+  void initState() {
+    super.initState();
+    engine = OpenVPN(
+      onVpnStatusChanged: (data) => setState(() => status = data),
+      onVpnStageChanged: (currentStage, raw) => setState(() => stage = currentStage),
+    );
+    
+    engine.initialize(
+      groupId: "com.alsid66.softether",
+      providerBundleIdentifier: "com.alsid66.softether.vpn",
+      localizedDescription: "SoftEther VPN Connection",
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('SoftEther OpenVPN Client')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text("مرحله فعلی: ${stage?.name ?? 'قطع ارتباط'}"),
+            Text("سرعت دانلود: ${status?.byteIn ?? '0'}"),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () {
+                if (stage == VPNStage.connected) {
+                  engine.disconnect();
+                } else {
+                  engine.connect(
+                    configOvpnText,
+                    "SoftEther Server",
+                    username: username,
+                    password: password,
+                  );
+                }
+              },
+              child: Text(stage == VPNStage.connected ? "قطع اتصال" : "اتصال به وی‌پي‌ان"),
             ),
-          ),
-          floatingActionButtonTheme: const FloatingActionButtonThemeData(
-            elevation: 4,
-          ),
+          ],
         ),
-        darkTheme: ThemeData(
-          primarySwatch: Colors.blue,
-          useMaterial3: true,
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.blue,
-            brightness: Brightness.dark,
-          ),
-          appBarTheme: const AppBarTheme(
-            centerTitle: true,
-            elevation: 2,
-          ),
-          cardTheme: CardTheme(
-            elevation: 2,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
-        ),
-        themeMode: ThemeMode.system,
-        home: const HomeScreen(),
       ),
     );
   }
